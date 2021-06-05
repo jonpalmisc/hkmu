@@ -8,15 +8,23 @@ cmd_help() {
     echo ""
     echo "USAGE"
     echo ""
-    echo "    hkmt <command>"
+    echo "    hkmu <command> [...]"
     echo ""
     echo "COMMANDS"
     echo ""
-    echo "    help        Show this usage message"
-    echo "    kexts       List loaded kernel extension IDs"
+    echo "    disks      List disks and partitions"
+    echo "    help       Show this usage message"
+    echo "    kexts      List loaded kernel extension IDs"
+    echo "    mount      Mount the system EFI partition"
+    echo "    unmount    Unmount the system EFI partition"
     echo ""
 
     exit 1
+}
+
+# List disks
+cmd_disks() {
+    diskutil list
 }
 
 # List active kernel extensions
@@ -24,6 +32,32 @@ cmd_kexts() {
     kmutil showloaded 2> /dev/null \
 	| grep -v -e com.apple -e Index \
 	| awk '{n=split($6,T,"."); print T[n]}'
+}
+
+# Mount the partition at diskXsY under /Volumes/EFI
+cmd_mount() {
+    if [ -z "$1" ] || [ -z "$2" ]; then
+	echo "Usage: hkmu mount <disk> <partition>"
+	exit 1
+    fi
+
+    if [ -d "/Volumes/EFI" ]; then
+	echo "Error: Mount point /Volumes/EFI already exists"
+	exit 1
+    fi
+
+    sudo mkdir /Volumes/EFI
+    sudo mount -t msdos /dev/disk${1}s${2} /Volumes/EFI > /dev/null
+}
+
+# Unmount the volume at /Volumes/EFI
+cmd_unmount() {
+    if [ ! -d "/Volumes/EFI" ]; then
+	echo "Error: Nothing mounted at /Volumes/EFI"
+	exit 1
+    fi
+
+    diskutil unmount /Volumes/EFI > /dev/null
 }
 
 cmd=$1
