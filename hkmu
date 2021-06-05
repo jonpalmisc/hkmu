@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-set -e
+# Print a message and exit with error code 1
+abort() {
+    >&2 echo $1
+    exit 1
+}
 
 # Show tool help
 cmd_help() {
@@ -26,8 +30,7 @@ cmd_help() {
 # Backup the EFI partition
 cmd_backup() {
     if [ ! -d "/Volumes/EFI/EFI" ]; then
-	echo "Error: EFI folder not found"
-	exit 1
+	abort "Error: EFI folder not found"
     fi
 
     file="efi$(date '+%y%m%d%H%M').tar.gz"
@@ -51,13 +54,11 @@ cmd_kexts() {
 # Mount the partition at diskXsY under /Volumes/EFI
 cmd_mount() {
     if [ -z "$1" ] || [ -z "$2" ]; then
-	echo "Usage: hkmu mount <disk> <partition>"
-	exit 1
+	abort "Usage: hkmu mount <disk> <partition>"
     fi
 
     if [ -d "/Volumes/EFI" ]; then
-	echo "Error: Mount point /Volumes/EFI already exists"
-	exit 1
+	abort "Error: Mount point /Volumes/EFI already exists"
     fi
 
     sudo mkdir /Volumes/EFI
@@ -69,8 +70,7 @@ cmd_mount() {
 # Unmount the volume at /Volumes/EFI
 cmd_unmount() {
     if [ ! -d "/Volumes/EFI" ]; then
-	echo "Error: Nothing mounted at /Volumes/EFI"
-	exit 1
+	abort "Error: Nothing mounted at /Volumes/EFI"
     fi
 
     diskutil unmount /Volumes/EFI > /dev/null
