@@ -85,11 +85,11 @@ case ${cmd} in
 	;;
     *)
 	shift
-	cmd_${cmd} $@
-	if [ $? = 127 ]; then
+	type cmd_${cmd} &> /dev/null
+	if [ $? -ne 0 ]; then
 	    echo "Error: Invalid subcommand '$cmd'" >&2
-	    echo "See 'hkmu help' for help and usage information"
-	    exit 1
+	    abort "See 'hkmu help' for help and usage information"
 	fi
+	cmd_${cmd} $@
 	;;
 esac
