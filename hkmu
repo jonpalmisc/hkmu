@@ -19,6 +19,7 @@ cmd_help() {
     echo "    backup     Backup the EFI partition (must be mounted)"
     echo "    disks      List disks and partitions"
     echo "    help       Show this usage message"
+    echo "    info       Display system information"
     echo "    kexts      List loaded kernel extension IDs"
     echo "    mount      Mount the system EFI partition"
     echo "    unmount    Unmount the system EFI partition"
@@ -42,6 +43,27 @@ cmd_backup() {
 # List disks
 cmd_disks() {
     diskutil list
+}
+
+# Show serial number, etc.
+cmd_info() {
+    if ! command -v jq &> /dev/null; then
+	abort "Error: This command requires 'jq' (not found)"
+    fi
+
+    sys=$(system_profiler SPHardwareDataType SPSoftwareDataType -json)
+
+    os=$(echo ${sys} | jq '.SPSoftwareDataType[0].os_version' --raw-output)
+    kernel=$(echo ${sys} | jq '.SPSoftwareDataType[0].kernel_version' --raw-output)
+    cpu=$(echo ${sys} | jq '.SPHardwareDataType[0].cpu_type' --raw-output)
+    ram=$(echo ${sys} | jq '.SPHardwareDataType[0].physical_memory' --raw-output)
+    model=$(echo ${sys} | jq '.SPHardwareDataType[0].machine_model' --raw-output)
+    serial=$(echo ${sys} | jq '.SPHardwareDataType[0].serial_number' --raw-output)
+    uuid=$(echo ${sys} | jq '.SPHardwareDataType[0].platform_UUID' --raw-output)
+
+    echo "System:      ${os} [${kernel}]"
+    echo "Hardware:    ${cpu}, ${ram}"
+    echo "SMBIOS:      ${model} (${serial}) [${uuid}]"
 }
 
 # List active kernel extensions
