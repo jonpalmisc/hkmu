@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Show tool help
+cmd_help() {
+    echo "hkmu - Hackintosh maintenance utility"
+    echo ""
+    echo "USAGE"
+    echo ""
+    echo "    hkmt <command>"
+    echo ""
+    echo "COMMANDS"
+    echo ""
+    echo "    help        Show this usage message"
+    echo "    kexts       List loaded kernel extension IDs"
+    echo ""
+
+    exit 1
+}
+
+# List active kernel extensions
+cmd_kexts() {
+    kmutil showloaded 2> /dev/null \
+	| grep -v -e com.apple -e Index \
+	| awk '{n=split($6,T,"."); print T[n]}'
+}
+
+cmd=$1
+case ${cmd} in
+    "" | "-h" | "--help")
+	cmd_help
+	;;
+    *)
+	shift
+	cmd_${cmd} $@
+	if [ $? = 127 ]; then
+	    echo "Error: Invalid subcommand '$cmd'" >&2
+	    echo "See 'hkmu help' for help and usage information"
+	    exit 1
+	fi
+	;;
+esac
