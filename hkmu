@@ -12,6 +12,7 @@ cmd_help() {
     echo ""
     echo "COMMANDS"
     echo ""
+    echo "    backup     Backup the EFI partition (must be mounted)"
     echo "    disks      List disks and partitions"
     echo "    help       Show this usage message"
     echo "    kexts      List loaded kernel extension IDs"
@@ -20,6 +21,19 @@ cmd_help() {
     echo ""
 
     exit 1
+}
+
+# Backup the EFI partition
+cmd_backup() {
+    if [ ! -d "/Volumes/EFI/EFI" ]; then
+	echo "Error: EFI folder not found"
+	exit 1
+    fi
+
+    file="efi$(date '+%y%m%d%H%M').tar.gz"
+    tar -zcf ${file} -C /Volumes/EFI/EFI .
+
+    echo "EFI backup saved to ${file}"
 }
 
 # List disks
