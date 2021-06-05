@@ -7,8 +7,8 @@ ABOUT
 
 INSTALL
 
-  Clone or download this repository and place 'hkmu' inside a directory in
-  your $PATH. Using a symbolic link is recommended.
+  Clone this repository and place 'hkmu' somewhere in your PATH. Using a
+  symbolic link is recommended as it makes updates easier.
 
     $ git clone https://github.com/jonpalmisc/hkmu.git && cd hkmu
     $ ln -s $(pwd)/hkmu /usr/local/bin/hkmu
